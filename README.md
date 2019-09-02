@@ -55,5 +55,5 @@ in production mode.
 python3 -m venv .env
 source .env/bin/activate
 pip install -r requimements.txt
-python3 -m unittest test/test.py
+python -m unittest test/test.py
 ```
