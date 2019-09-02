@@ -50,7 +50,10 @@ converted to page with stacktrace and status equal to 200, so this library doesn
 catch request exception in debug mode, so recommended way is to use this library only 
 in production mode.
 
-## For runtting tests
+## For running tests
 ```bash
+python3 -m venv .env
+source .env/bin/activate
+pip install -r requimements.txt
 python3 -m unittest test/test.py
 ```
