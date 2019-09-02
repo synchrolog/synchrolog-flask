@@ -49,3 +49,8 @@ if `FLASK_DEBUG` is `true` any exceptions will be handled by flask and
 converted to page with stacktrace and status equal to 200, so this library doesn't 
 catch request exception in debug mode, so recommended way is to use this library only 
 in production mode.
+
+## For runtting tests
+```bash
+python3 -m unittest test/test.py
+```
