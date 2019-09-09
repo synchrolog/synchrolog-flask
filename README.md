@@ -1,7 +1,7 @@
 # Synchrolog
 
 ## Installation
-`pip install git+https://github.com/synchrolog/synchrolog-flask.git@master`
+`pip install -r git+https://github.com/synchrolog/synchrolog-flask.git@master`
 
 ## Usage
 

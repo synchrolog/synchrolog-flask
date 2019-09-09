@@ -8,5 +8,18 @@ setup(
     license='',
     author='',
     author_email='',
-    description='Flask middleware library for sending logs to Synchrolog '
+    description='Flask middleware library for sending logs to Synchrolog ',
+    install_requires=[
+        'certifi',
+        'chardet',
+        'Click',
+        'Flask',
+        'idna',
+        'itsdangerous',
+        'Jinja2',
+        'MarkupSafe',
+        'requests',
+        'urllib3',
+        'Werkzeug',
+    ],
 )
