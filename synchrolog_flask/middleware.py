@@ -6,13 +6,17 @@ from queue import Queue
 from uuid import uuid4
 
 import requests
-from flask import request, jsonify
+from flask import jsonify, request
+from flask.logging import default_handler
 from werkzeug.exceptions import HTTPException
 
 ANONYMOUS_KEY = 'synchrolog_anonymous_id'
 USER_KEY = 'synchrolog_user_id'
 
 queue = Queue()
+
+middleware_logger = logging.getLogger('synchrolog.middleware')
+middleware_logger.addHandler(default_handler)
 
 
 class _RequestHandler(logging.Handler):
@@ -39,7 +43,7 @@ def _synchrolog_record_factory(record):
     if not request:
         return record
 
-    anonymous_id = request.cookies.get(ANONYMOUS_KEY, _generate_uuid())
+    anonymous_id = request.environ[ANONYMOUS_KEY]
     user_id = request.cookies.get(USER_KEY)
 
     timestamp = datetime.now().isoformat()
@@ -138,7 +142,12 @@ def _generate_uuid():
     return str(uuid4())
 
 
-def init(app, use_queue=True, level=logging.root.level):
+def init(
+    app,
+    use_queue=True,
+    level=logging.root.level,
+    request_logger_level=middleware_logger.level
+):
     access_token = app.config.get('SYNCHROLOG_ACCESS_TOKEN', None)
     assert bool(access_token), 'SYNCHROLOG_ACCESS_TOKEN app config can not be empty'
 
@@ -157,6 +166,7 @@ def init(app, use_queue=True, level=logging.root.level):
         logger.addHandler(handler)
 
     logging.setLogRecordFactory(_build_make_record_function())
+    middleware_logger.setLevel(request_logger_level)
 
     @app.route('/synchrolog-time')
     def synchrolog_time():
@@ -169,3 +179,19 @@ def init(app, use_queue=True, level=logging.root.level):
             exc_info=exception,
         )
         return exception
+
+    @app.before_request
+    def before_request():
+        environ = request.environ.copy()
+        anonymous_id = request.cookies.get(ANONYMOUS_KEY, _generate_uuid())
+        environ[ANONYMOUS_KEY] = anonymous_id
+        request.environ = environ
+
+    @app.after_request
+    def after_response(response):
+        anonymous_key = request.environ.get(ANONYMOUS_KEY)
+        if anonymous_key is not None:
+            response.set_cookie(key=ANONYMOUS_KEY, value=anonymous_key)
+        message = f'"{request.method} {request.path}" {response.status_code}'
+        middleware_logger.info(message)
+        return response

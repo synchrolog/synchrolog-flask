@@ -28,6 +28,9 @@ app.config['SYNCHROLOG_ACCESS_TOKEN'] = '123456'
 
 synchrolog_flask.init(app, use_queue=True)
 
+# Disable default logging
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 logger = app.logger
 
 @app.route('/')
